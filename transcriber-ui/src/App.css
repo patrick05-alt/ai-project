@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Outfit', sans-serif;
+  background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.App {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.glass-container {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px 40px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  animation: float 6s ease-in-out infinite;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: #b0b0c0;
+  -webkit-text-fill-color: #b0b0c0;
+  margin-top: 5px;
+}
+
+.vexflow-wrapper {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 8px 0;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 180px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: box-shadow 0.3s ease;
+}
+
+.vexflow-wrapper > svg {
+  display: block;
+  height: 160px;
+}
+
+.vexflow-wrapper:hover {
+  box-shadow: inset 0 0 16px rgba(0,0,0,0.15);
+}
+
+.controls {
+  margin-bottom: 25px;
+}
+
+.mic-button {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.mic-button.start {
+  background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
+}
+
+.mic-button.start:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(146, 254, 157, 0.4);
+}
+
+.mic-button.stop {
+  background: linear-gradient(90deg, #FF416C 0%, #FF4B2B 100%);
+}
+
+.mic-button.stop:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 65, 108, 0.4);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* ── Status row ── */
+.status-row {
+  margin-bottom: 18px;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+.conn-dot { font-weight: 500; }
+
+/* ── Controls + Note badge row ── */
+.controls-note-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 14px;
+}
+
+/* ── Live note badge ── */
+.note-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  min-width: 72px;
+  min-height: 56px;
+  justify-content: center;
+  border-radius: 16px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  padding: 6px 14px;
+  transition: all 0.25s ease;
+}
+
+.note-badge--active {
+  border-color: #92FE9D;
+  background: rgba(146, 254, 157, 0.1);
+  box-shadow: 0 0 18px rgba(146, 254, 157, 0.35);
+  animation: badge-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(146,254,157,0.25); }
+  50%       { box-shadow: 0 0 28px rgba(146,254,157,0.55); }
+}
+
+.note-badge__name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #92FE9D;
+  line-height: 1;
+}
+.note-badge__octave {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #92FE9D;
+  opacity: 0.75;
+  align-self: flex-end;
+  margin-bottom: 3px;
+}
+.note-badge__idle {
+  font-size: 1.6rem;
+  color: rgba(255,255,255,0.2);
+}
+
+/* ── VU meter ── */
+.vu-track {
+  width: 10px;
+  height: 56px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+.vu-fill {
+  width: 100%;
+  background: linear-gradient(to top, #92FE9D, #00C9FF);
+  border-radius: 8px;
+  transition: height 0.08s ease;
+  min-height: 3px;
+}
+
+/* ── Full note label ── */
+.note-label-full {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(146,254,157,0.6);
+  font-weight: 500;
+}
