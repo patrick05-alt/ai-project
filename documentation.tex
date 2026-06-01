@@ -1,0 +1,83 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{geometry}
+
+\geometry{a4paper, margin=1in}
+
+\definecolor{lightgray}{rgb}{0.95,0.95,0.95}
+\lstset{
+    backgroundcolor=\color{lightgray},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single
+}
+
+\title{\textbf{AudioSpread: Real-Time Audio-to-Sheet-Music Architecture}}
+\author{Project Documentation}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+The \textbf{AudioSpread} project is an end-to-end machine learning architecture designed to transcribe raw acoustic audio signals (e.g., live ukulele or piano music) into standard Western sheet music notation in real-time. The architecture is explicitly optimized for consumer-grade hardware, ensuring millisecond latency without relying on heavy cloud compute. 
+
+\section{Architecture Overview}
+The system is bifurcated into three distinct modules: the Real-Time Inference Backend, the Web-based Visualizer Frontend, and an optional Training Pipeline.
+
+\subsection{Inference Backend (\texttt{server.py})}
+The backend relies on \textbf{FastAPI} and \textbf{NumPy/Librosa}. It continuously receives rolling 4096-sample buffers over a WebSocket endpoint (\texttt{/ws}). Pitch extraction relies on a custom \texttt{NoteTracker} class utilizing a Fast Fourier Transform (FFT) combined with parabolic interpolation. 
+
+Crucially, the tracker operates on a strict three-state machine (\texttt{SILENCE $\rightarrow$ ATTACK $\rightarrow$ LOCKED}). This entirely prevents mid-decay harmonic jumps or octave errors. A confirmed MIDI note is broadcast back to the frontend alongside the detected RMS velocity.
+
+\subsection{Frontend Visualizer (\texttt{transcriber-ui})}
+A lightweight \textbf{React.js} client manages microphone capture inside the browser context via the modern \textbf{AudioWorkletNode} API (bypassing native OS library conflicts). The client streams binary `Float32Array` audio to the WebSocket server. 
+
+Incoming JSON MIDI tokens are parsed, and an echo-suppression algorithm ensures consecutive identical pitches aren't redundantly re-triggered. The notes are finally fed into the \textbf{VexFlow} rendering engine, drawing them onto an infinite horizontal scrolling HTML5 Canvas stave. The UI is built with a premium ``glassmorphism'' CSS aesthetic.
+
+\subsection{Training Pipeline (\texttt{train.py})}
+An optional training pipeline leverages a Convolutional Recurrent Neural Network (CRNN) to map audio frequencies to MIDI pitches.
+\begin{itemize}
+    \item \textbf{Dataset:} The pipeline utilizes the MAESTRO v3 dataset.
+    \item \textbf{Audio Representation:} Raw waveform audio is transformed into Constant-Q Transforms (CQT).
+    \item \textbf{Dynamic Loading:} To prevent RAM exhaustion (OOM errors), the script employs an on-the-fly random cropping strategy and interval-based MIDI caching.
+    \item \textbf{Export:} The model is exported to an ONNX graph (\texttt{transcriber\_quantized.onnx}) for inference.
+\end{itemize}
+
+\section{Setup and Installation}
+\subsection{System Prerequisites}
+Audio capture now operates directly within the browser, meaning the system runs natively on Windows PowerShell, macOS, and Linux without requiring WSL or PulseAudio configurations.
+
+\subsection{Environment Bootstrapping}
+A Python 3 virtual environment must be isolated for the backend processes:
+\begin{lstlisting}[language=bash]
+# Windows PowerShell Execution
+.\setup.ps1
+\end{lstlisting}
+The \texttt{setup.ps1} script automatically generates the virtual environment and installs \texttt{torch}, \texttt{librosa}, \texttt{fastapi}, \texttt{uvicorn}, \texttt{websockets}, and \texttt{onnxruntime}.
+
+\section{Features and Capabilities}
+
+\subsection{Strict State-Machine Pitch Detection}
+The algorithm enforces a hard rule where a new pitch can only be targeted if the audio signal previously returned to a silent threshold. This eliminates ``messy'' false notes generated during string decay harmonics. 
+
+\subsection{Interactive CLI Training}
+The \texttt{train.py} script features a comprehensive CLI via \texttt{argparse}. Omitting arguments spawns an interactive menu that dynamically scans the MAESTRO dataset directories.
+
+\section{Execution Protocol}
+The application requires simultaneous execution of the backend WebSocket provider and the React consumer:
+\begin{enumerate}
+    \item \textbf{Backend:} Execute \texttt{uvicorn server:app --port 8000 --reload}.
+    \item \textbf{Frontend:} Execute \texttt{npm start} inside the \texttt{transcriber-ui} directory.
+\end{enumerate}
+
+\end{document}
